@@ -174,4 +174,4 @@ def GA(x,y,population,lenOfChromo,generations):
 
 
 for i in range(0,30):
-    print(GA())
+    print(GA(x=3,y=2,population =8,lenOfChromo=11,generations=200))

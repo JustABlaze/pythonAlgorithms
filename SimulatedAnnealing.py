@@ -63,36 +63,5 @@ def SA(xInput,yInput,startTemp,endTemp,incrt):
 
     return (round(finalResult,4),round(finalX,5),round(finalY,5),startTemp,endTemp,incrt)
 
-def automationTest(i,newTemp,newFinal,newInc):
-    matrix = []
-    temp = newTemp
-    finalTemp = newFinal
-    incrt = newInc
-    f, ax = plt.subplots(1, 2, sharex=True, sharey=True)
-    x_axis = []
-    y_axis = []
-    values = []
 
-    for j in range(0,5):
-        value = SA(3,2,temp,finalTemp,incrt)
-        matrix.append([value[0],value[3]])
-        x_axis.append(value[1])
-        y_axis.append(value[2])
-        values.append(value[0])
-        print(value)
-    ax[0].plot(x_axis, y_axis, 'ro')
-    plt.savefig(f'{i}.png')
-
-def graph(tem,ftem,inc,subtract):
-    temp = tem
-    finalTemp = ftem
-    incrt = inc
-    for i in range(0,6):
-        automationTest(i, temp, finalTemp, incrt)
-        finalTemp = finalTemp + random.uniform(-20,20)
-        finalTemp = finalTemp if finalTemp > 0 else finalTemp * -1
-
-        temp = temp - 20
-        incrt -= subtract
-
-graph(450,23,0.98,0.02)
+print(SA(3,2,450,23,0.98))
