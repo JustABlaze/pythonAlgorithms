@@ -1,3 +1,5 @@
+
+
 ''''
 
 Name: Mustafa Khalil
@@ -6,12 +8,12 @@ ID:   140201100
 '''
 
 import random
+import multiprocessing as mp
 
 
-
-def objectiveFunc(x,y):
-    first_equation = (4-(2.1*(x**2)) + ((x**4)/3))*x**2
-    second_equation = (-4 + (4*(y**2)))*y**2
+def objectiveFuncparallel(x,y,a,b,c,d,e):
+    first_equation = (a-(b*(x**2)) + ((x**4)/c))*x**2
+    second_equation = (-d + (e*(y**2)))*y**2
     return first_equation + (x*y) + second_equation
 
 
@@ -40,7 +42,7 @@ def presision(constrants,lenOfChromo):
     return (constrants - (-constrants))/(2**lenOfChromo-1)
 
 
-def generateValues(array,xCons,yCons,lenOfChromo):
+def generateValues(array,xCons,yCons,lenOfChromo,function,constArray):
 
     for i in range(0,len(array)):
         x = convertTodecimal(array[i].x)
@@ -48,17 +50,17 @@ def generateValues(array,xCons,yCons,lenOfChromo):
         x = (x * presision(xCons, lenOfChromo)) - xCons
         y = (y * presision(yCons, lenOfChromo)) - yCons
 
-        array[i].value = round(objectiveFunc(x,y),4)
+        array[i].value = round(function(x=x,y=y,a=constArray[0],b=constArray[1],c=constArray[2],d=constArray[3],e=constArray[4]),4)
 
 
     return array
 
 
-def createInitialPopulation(neededPop,lenOfChromo,xCons,yCons):
+def createInitialPopulation(neededPop,lenOfChromo,xCons,yCons,function,constArray):
     thisArray = []
     for i in range(0,neededPop):
         thisArray.append(gene(x= generateChromo(lenOfChromo),y =generateChromo(lenOfChromo)))
-    thisArray = generateValues(array=thisArray,xCons=xCons,yCons=yCons,lenOfChromo=lenOfChromo)
+    thisArray = generateValues(array=thisArray,xCons=xCons,yCons=yCons,lenOfChromo=lenOfChromo,function=function,constArray=constArray)
     thisArray = sorted(thisArray, key=lambda x: x.value)
     return thisArray
 
@@ -98,7 +100,7 @@ def calculateFitness(array):
         array[i].fitness = (array[i].fitness/sumValue)
     return array
 
-def crossOver(prnt1,prnt2,xCons,yCons,lenOfChromo):
+def crossOver(prnt1,prnt2,xCons,yCons,lenOfChromo,function,constArray):
     child1 = gene(x= generateChromo(lenOfChromo),y =generateChromo(lenOfChromo))
     child2 = gene(x= generateChromo(lenOfChromo),y =generateChromo(lenOfChromo))
     for i in range(0,int(lenOfChromo/2)):
@@ -114,11 +116,11 @@ def crossOver(prnt1,prnt2,xCons,yCons,lenOfChromo):
             child2.x[i] = prnt1.x[i]
             child2.y[i] = prnt2.y[i]
 
-    children = generateValues([child1,child2],xCons=xCons,yCons=yCons,lenOfChromo=lenOfChromo)
+    children = generateValues([child1,child2],xCons=xCons,yCons=yCons,lenOfChromo=lenOfChromo,function=function,constArray=constArray)
 
     return (children[0],children[1])
 
-def mutation(array,mutationValue,lenOfChromo,xCons,yCons):
+def mutation(array,mutationValue,lenOfChromo,xCons,yCons,function,constArray):
     for i in range(0,len(array)):
         rand = random.uniform(0,1)
         if rand < mutationValue:
@@ -126,7 +128,7 @@ def mutation(array,mutationValue,lenOfChromo,xCons,yCons):
             array[i].x[randomMutation] = 0 if array[i].x[randomMutation] == 1 else 1
             array[i].y[randomMutation] = 0 if array[i].y[randomMutation] == 1 else 1
 
-    children = generateValues([array[0], array[1]], xCons=xCons, yCons=yCons, lenOfChromo=lenOfChromo)
+    children = generateValues([array[0], array[1]], xCons=xCons, yCons=yCons, lenOfChromo=lenOfChromo,function=function,constArray=constArray)
     return (children[0],children[1])
 
 
@@ -134,7 +136,7 @@ def pickBetterFitness():
 
     return None
 
-def GA(x,y,population,lenOfChromo,generations):
+def GA(x,y,population,lenOfChromo,generations,function,array):
     mutationValue = 0.11
     lenOfChromo = lenOfChromo
     Xcon = x
@@ -142,14 +144,14 @@ def GA(x,y,population,lenOfChromo,generations):
     numberOfPop = population
     G_MAX = generations
     ps = int(numberOfPop/2)
-    startingPop = createInitialPopulation(neededPop=numberOfPop,lenOfChromo=lenOfChromo,xCons=Xcon,yCons=Ycon)
+    startingPop = createInitialPopulation(neededPop=numberOfPop,lenOfChromo=lenOfChromo,xCons=Xcon,yCons=Ycon,function=function,constArray=array)
 
     for i in range(0,G_MAX):
         childrenPop = []
         for i in range(0,ps):
             (x1,x2) = pickParents(startingPop)
-            (chld1,chld2) = crossOver(x1,x2,xCons=Xcon,yCons=Ycon,lenOfChromo=lenOfChromo)
-            (chld1,chld2) = mutation([chld1,chld2],mutationValue = mutationValue,lenOfChromo= lenOfChromo,xCons=Xcon,yCons=Ycon)
+            (chld1,chld2) = crossOver(x1,x2,xCons=Xcon,yCons=Ycon,lenOfChromo=lenOfChromo,function=function,constArray=array)
+            (chld1,chld2) = mutation([chld1,chld2],mutationValue = mutationValue,lenOfChromo= lenOfChromo,xCons=Xcon,yCons=Ycon,function=function,constArray=array)
             childrenPop.append(chld1)
             childrenPop.append(chld2)
 
@@ -173,5 +175,45 @@ def GA(x,y,population,lenOfChromo,generations):
 
 
 
-for i in range(0,30):
-    print(GA())
+
+array = [[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4]
+    ,[4,2.1,3,4,4],[4,2.1,3,4,4],]
+count = 0
+from datetime import datetime
+start=datetime.now()
+print(mp.cpu_count())
+
+
+for i in array:
+    print(GA(x=3,y=2,population =8,lenOfChromo=11,generations=200, function=objectiveFuncparallel,array=i))
+
+
+print(datetime.now() - start)
+
+start=datetime.now()
+
+def func(x):
+    print(x)
+    print(GA(x=3, y=2, population=8, lenOfChromo=11, generations=200, function=objectiveFuncparallel, array=i))
+
+p = mp.Pool(processes=8)
+p.map(func,array)
+
+print(datetime.now() - start)
