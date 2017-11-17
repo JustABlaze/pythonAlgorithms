@@ -8,13 +8,15 @@ ID:   140201100
 import random
 
 
-
+# objective function z
 def objectiveFunc(x,y):
     first_equation = (4-(2.1*(x**2)) + ((x**4)/3))*x**2
     second_equation = (-4 + (4*(y**2)))*y**2
     return first_equation + (x*y) + second_equation
 
 
+# Class gene that holds the x,y binary array
+# value of the objective funtion
 class gene():
     def __init__(self,x=[],y=[],value=0.0,fitness = 0.0):
         self.x = x
@@ -130,28 +132,42 @@ def mutation(array,mutationValue,lenOfChromo,xCons,yCons):
     return (children[0],children[1])
 
 
-def pickBetterFitness():
-
-    return None
+def fixPopulation(neededPop,lenOfChromo,xCons,yCons):
+    array = createInitialPopulation(neededPop=neededPop,lenOfChromo=lenOfChromo,xCons=xCons,yCons=yCons)
+    return array
 
 def GA(x,y,population,lenOfChromo,generations):
+
+    pc = 1.0
     mutationValue = 0.11
     lenOfChromo = lenOfChromo
     Xcon = x
     Ycon = y
     numberOfPop = population
     G_MAX = generations
-    ps = int(numberOfPop/2)
+    ps = numberOfPop//2
     startingPop = createInitialPopulation(neededPop=numberOfPop,lenOfChromo=lenOfChromo,xCons=Xcon,yCons=Ycon)
+    zValue = startingPop[0]
+
 
     for i in range(0,G_MAX):
         childrenPop = []
+
         for i in range(0,ps):
+            chld1 = gene()
+            chld2 = gene()
+            rand = random.uniform(0,1)
+            gotChildren = False
             (x1,x2) = pickParents(startingPop)
-            (chld1,chld2) = crossOver(x1,x2,xCons=Xcon,yCons=Ycon,lenOfChromo=lenOfChromo)
-            (chld1,chld2) = mutation([chld1,chld2],mutationValue = mutationValue,lenOfChromo= lenOfChromo,xCons=Xcon,yCons=Ycon)
-            childrenPop.append(chld1)
-            childrenPop.append(chld2)
+
+            if rand < pc:
+                gotChildren = True
+                (chld1,chld2) = crossOver(x1,x2,xCons=Xcon,yCons=Ycon,lenOfChromo=lenOfChromo)
+
+            if gotChildren == True:
+                (chld1,chld2) = mutation([chld1,chld2],mutationValue = mutationValue,lenOfChromo= lenOfChromo,xCons=Xcon,yCons=Ycon)
+                childrenPop.append(chld1)
+                childrenPop.append(chld2)
 
         childrenPop = sorted(childrenPop, key=lambda x: x.value)
         childrenPop = calculateFitness(childrenPop)
@@ -160,18 +176,26 @@ def GA(x,y,population,lenOfChromo,generations):
 
         for i in range(0,len(startingPop)):
             temp.append(startingPop[i])
+
+        for i in range(0,len(childrenPop)):
             temp.append(childrenPop[i])
+
         temp = sorted(temp, key=lambda x: x.value)
 
-        for i in range(0,len(startingPop)):
+        for i in range(0,numberOfPop):
             nextGen.append(temp[i])
 
         nextGen = sorted(nextGen, key=lambda x: x.value)
+
         startingPop = nextGen
 
-    return startingPop[0].value
+        if  startingPop[0].value< zValue.value:
+            zValue = startingPop[0]
+
+
+    return zValue.value
 
 
 
 for i in range(0,30):
-    print(GA(x=3,y=2,population =8,lenOfChromo=11,generations=200))
+    print(GA(x=3,y=2,population =50,lenOfChromo=11,generations=600))

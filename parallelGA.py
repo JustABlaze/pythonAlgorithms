@@ -137,41 +137,70 @@ def pickBetterFitness():
     return None
 
 def GA(x,y,population,lenOfChromo,generations,function,array):
+    pc = 1.0
     mutationValue = 0.11
     lenOfChromo = lenOfChromo
     Xcon = x
     Ycon = y
     numberOfPop = population
     G_MAX = generations
-    ps = int(numberOfPop/2)
-    startingPop = createInitialPopulation(neededPop=numberOfPop,lenOfChromo=lenOfChromo,xCons=Xcon,yCons=Ycon,function=function,constArray=array)
+    ps = numberOfPop // 2
+    startingPop = createInitialPopulation(neededPop=numberOfPop, lenOfChromo=lenOfChromo, xCons=Xcon, yCons=Ycon,
+                                          function=function, constArray=array)
+    zValue = startingPop[0]
 
-    for i in range(0,G_MAX):
+    for i in range(0, G_MAX):
         childrenPop = []
-        for i in range(0,ps):
-            (x1,x2) = pickParents(startingPop)
-            (chld1,chld2) = crossOver(x1,x2,xCons=Xcon,yCons=Ycon,lenOfChromo=lenOfChromo,function=function,constArray=array)
-            (chld1,chld2) = mutation([chld1,chld2],mutationValue = mutationValue,lenOfChromo= lenOfChromo,xCons=Xcon,yCons=Ycon,function=function,constArray=array)
-            childrenPop.append(chld1)
-            childrenPop.append(chld2)
+
+        for i in range(0, ps):
+            chld1 = gene()
+            chld2 = gene()
+            rand = random.uniform(0, 1)
+            gotChildren = False
+            (x1, x2) = pickParents(startingPop)
+
+            if rand < pc:
+                gotChildren = True
+                (chld1, chld2) = crossOver(x1, x2, xCons=Xcon, yCons=Ycon, lenOfChromo=lenOfChromo, function=function,
+                                           constArray=array)
+
+
+            if gotChildren == True:
+                (chld1, chld2) = mutation([chld1, chld2], mutationValue=mutationValue, lenOfChromo=lenOfChromo,
+                                          xCons=Xcon, yCons=Ycon, function=function, constArray=array)
+                childrenPop.append(chld1)
+                childrenPop.append(chld2)
 
         childrenPop = sorted(childrenPop, key=lambda x: x.value)
         childrenPop = calculateFitness(childrenPop)
         nextGen = []
         temp = []
 
-        for i in range(0,len(startingPop)):
+        for i in range(0, len(startingPop)):
             temp.append(startingPop[i])
+
+        for i in range(0, len(childrenPop)):
             temp.append(childrenPop[i])
+
         temp = sorted(temp, key=lambda x: x.value)
 
-        for i in range(0,len(startingPop)):
+        for i in range(0, numberOfPop):
             nextGen.append(temp[i])
 
         nextGen = sorted(nextGen, key=lambda x: x.value)
+
         startingPop = nextGen
 
-    return startingPop[0].value
+        if startingPop[0].value < zValue.value:
+            zValue = startingPop[0]
+
+    return zValue.value
+
+
+
+
+
+
 
 
 
@@ -194,7 +223,18 @@ array = [[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[
          [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
          [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
          [4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4]
-    ,[4,2.1,3,4,4],[4,2.1,3,4,4],]
+    ,[4,2.1,3,4,4],[4,2.1,3,4,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4]]
+
 count = 0
 from datetime import datetime
 start=datetime.now()
@@ -202,7 +242,7 @@ print(mp.cpu_count())
 
 
 for i in array:
-    print(GA(x=3,y=2,population =8,lenOfChromo=11,generations=200, function=objectiveFuncparallel,array=i))
+    print(GA(x=3,y=2,population =50,lenOfChromo=11,generations=500, function=objectiveFuncparallel,array=i))
 
 
 print(datetime.now() - start)
@@ -211,7 +251,7 @@ start=datetime.now()
 
 def func(x):
     print(x)
-    print(GA(x=3, y=2, population=8, lenOfChromo=11, generations=200, function=objectiveFuncparallel, array=i))
+    print(GA(x=3, y=2, population=50, lenOfChromo=11, generations=500, function=objectiveFuncparallel, array=i))
 
 p = mp.Pool(processes=8)
 p.map(func,array)
