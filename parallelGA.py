@@ -14,6 +14,7 @@ import multiprocessing as mp
 def objectiveFuncparallel(x,y,a,b,c,d,e):
     first_equation = (a-(b*(x**2)) + ((x**4)/c))*x**2
     second_equation = (-d + (e*(y**2)))*y**2
+
     return first_equation + (x*y) + second_equation
 
 
@@ -51,7 +52,6 @@ def generateValues(array,xCons,yCons,lenOfChromo,function,constArray):
         y = (y * presision(yCons, lenOfChromo)) - yCons
 
         array[i].value = round(function(x=x,y=y,a=constArray[0],b=constArray[1],c=constArray[2],d=constArray[3],e=constArray[4]),4)
-
 
     return array
 
@@ -100,7 +100,7 @@ def calculateFitness(array):
         array[i].fitness = (array[i].fitness/sumValue)
     return array
 
-def crossOver(prnt1,prnt2,xCons,yCons,lenOfChromo,function,constArray):
+def swapDNA(prnt1,prnt2,xCons,yCons,lenOfChromo,function,constArray):
     child1 = gene(x= generateChromo(lenOfChromo),y =generateChromo(lenOfChromo))
     child2 = gene(x= generateChromo(lenOfChromo),y =generateChromo(lenOfChromo))
     for i in range(0,int(lenOfChromo/2)):
@@ -120,6 +120,41 @@ def crossOver(prnt1,prnt2,xCons,yCons,lenOfChromo,function,constArray):
 
     return (children[0],children[1])
 
+
+
+def singlePoint(prnt1,prnt2,xCons,yCons,lenOfChromo,function,constArray):
+    child1 = gene(x= generateChromo(lenOfChromo),y =generateChromo(lenOfChromo))
+    child2 = gene(x= generateChromo(lenOfChromo),y =generateChromo(lenOfChromo))
+    rand = round(random.uniform(0,1))
+    if rand == 1:
+        arrayslice = random.randint(0,lenOfChromo-1)
+        child1.x[0:arrayslice] = prnt1.x[0:arrayslice]
+        child1.x[arrayslice:] = prnt2.x[arrayslice:]
+        child1.y[0:arrayslice] = prnt2.y[0:arrayslice]
+        child1.y[arrayslice:] = prnt1.y[arrayslice:]
+
+        arrayslice = random.randint(0, lenOfChromo - 1)
+        child2.x[0:arrayslice] = prnt2.x[0:arrayslice]
+        child2.x[arrayslice:] = prnt1.x[arrayslice:]
+        child2.y[0:arrayslice] = prnt1.y[0:arrayslice]
+        child2.y[arrayslice:] = prnt2.y[arrayslice:]
+
+    children = generateValues([child1,child2],xCons=xCons,yCons=yCons,lenOfChromo=lenOfChromo,function=function,constArray=constArray)
+
+    return (children[0],children[1])
+
+def crossOver(prnt1,prnt2,xCons,yCons,lenOfChromo,function,constArray):
+
+    rand = random.randint(0,1)
+    if rand == 1:
+        return swapDNA(prnt1=prnt1, prnt2=prnt2, xCons=xCons, yCons=yCons, lenOfChromo=lenOfChromo,function=function,
+                                           constArray=constArray)
+    else:
+        return singlePoint(prnt1=prnt1, prnt2=prnt2, xCons=xCons, yCons=yCons, lenOfChromo=lenOfChromo,function=function,
+                                           constArray=constArray)
+
+
+
 def mutation(array,mutationValue,lenOfChromo,xCons,yCons,function,constArray):
     for i in range(0,len(array)):
         rand = random.uniform(0,1)
@@ -137,6 +172,7 @@ def pickBetterFitness():
     return None
 
 def GA(x,y,population,lenOfChromo,generations,function,array):
+
     pc = 1.0
     mutationValue = 0.11
     lenOfChromo = lenOfChromo
@@ -197,14 +233,6 @@ def GA(x,y,population,lenOfChromo,generations,function,array):
     return zValue.value
 
 
-
-
-
-
-
-
-
-
 array = [[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],
          [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
          [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
@@ -242,7 +270,7 @@ print(mp.cpu_count())
 
 
 for i in array:
-    print(GA(x=3,y=2,population =50,lenOfChromo=11,generations=500, function=objectiveFuncparallel,array=i))
+    print(GA(x=3,y=2,population =18,lenOfChromo=11,generations=500, function=objectiveFuncparallel,array=i))
 
 
 print(datetime.now() - start)
@@ -251,9 +279,22 @@ start=datetime.now()
 
 def func(x):
     print(x)
-    print(GA(x=3, y=2, population=50, lenOfChromo=11, generations=500, function=objectiveFuncparallel, array=i))
+    print(GA(x=3, y=2, population=18, lenOfChromo=11, generations=500, function=objectiveFuncparallel, array=i))
 
 p = mp.Pool(processes=8)
 p.map(func,array)
 
 print(datetime.now() - start)
+
+
+# pop of 30
+# 0:03:12.804871
+# 0:01:00.130893
+
+# pop of 18
+# 0:01:42.705822
+# 0:00:32.519575
+
+# pop of 8
+# 0:00:40.779901
+# 0:00:11.884592
