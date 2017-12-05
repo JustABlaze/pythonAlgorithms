@@ -7,7 +7,7 @@
 import math
 import random
 import copy
-
+import multiprocessing as mp
 
 class optimizedPath():
     def __init__(self,array,value,moved,index):
@@ -94,9 +94,7 @@ def openTxt():
     with open('test.txt','r') as f:
         content = f.readlines()
     # you may also want to remove whitespace characters like `\n` at the end of each line
-
     content = [x.strip() for x in content]
-
     return content
 
 
@@ -131,7 +129,6 @@ def fitenss(currentPlacement,dataArray):
     # Data array should be matched
     ##################
     # This loop goes from the beginning of the currentPlacement array to n-1
-
     for i in range(0,len(currentPlacement)-1):
 
         # This loop goes from the i+1 to the end of the currentPlacement array
@@ -147,7 +144,6 @@ def fitenss(currentPlacement,dataArray):
                 distance = dataArray[currentPlacement[j]-1][currentPlacement[i]-1]
 
             z = z + distance*flow
-
     return z
 
 
@@ -180,12 +176,11 @@ def taboo():
     tabooLists = Taboo(tb1=[],tb2=[],tb3=[],dtb1={},dtb2={},dtb3={},memory1=3)
     currentPath = copy.copy(intialSolution)
 
-
+    # while True:
     for i in range(0,450):
         solutionArrays = []
         for i in range(0,len(currentPath)-1):
             for j in range(i+1,len(currentPath)):
-
                 array = copy.copy(currentPath)
                 swap = (currentPath[i],currentPath[j])
                 array[i] = swap[1]
@@ -213,19 +208,68 @@ def taboo():
                 bestPath = x[3]
                 break
 
-
-        if previousSolution == bestSolution:
-            count += 1
-        if previousSolution == bestSolution and count == 25:
-            random.shuffle(currentPath)
-            count = 0
-
-        if bestSolution < previousSolution:
-            count = 0
-            previousSolution = bestSolution
+        # if bestSolution == previousSolution and count == 3:
+        #     break
+        #
+        # if bestSolution == previousSolution:
+        #     count += 1
+        #
+        # if bestSolution < previousSolution:
+        #     previousSolution = bestSolution
+        #     count = 0
 
     return (bestPath,bestSolution)
 
-print(taboo())
+
+array = [[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4], [4, 2.1, 3, 4, 4],
+         [4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4],[4,2.1,3,4,4]
+    ,[4,2.1,3,4,4],[4,2.1,3,4,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],
+         [0, 1, 2, 3, 4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4],[0,1,2,3,4]]
+
+count = 0
+from datetime import datetime
+start=datetime.now()
+print(mp.cpu_count())
 
 
+for i in array:
+    print(taboo())
+
+
+print(datetime.now() - start)
+
+start=datetime.now()
+
+def func(x):
+    print(x)
+    print(taboo())
+
+p = mp.Pool(processes=8)
+p.map(func,array)
+
+print(datetime.now() - start)
