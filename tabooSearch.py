@@ -16,15 +16,15 @@ class optimizedPath():
         self.moved = moved
         self.index = index
 
-class Taboo():
-    def __init__(self,tb1 = None,tb2 = None,tb3 = None,dtb1 = None,dtb2 = None,dtb3 = None,memory1 = 1):
+class TabooList():
+    def __init__(self,tb1 = None,tb2 = None,tb3 = None,dtb1 = None,dtb2 = None,dtb3 = None):
         self.tb1 = tb1
         self.tb2 = tb2
         self.tb3 = tb3
         self.dictTb1 = dtb1
         self.dictTb2 = dtb2
         self.dictTb3 = dtb3
-        self.Memory = memory1
+
 
 
     def checker(self,path,moved,index):
@@ -90,8 +90,8 @@ class Taboo():
 
 
 
-def openTxt():
-    with open('test.txt','r') as f:
+def openTxt(textName):
+    with open(textName,'r') as f:
         content = f.readlines()
     # you may also want to remove whitespace characters like `\n` at the end of each line
 
@@ -100,8 +100,8 @@ def openTxt():
     return content
 
 
-def GetData():
-    content = openTxt()
+def GetData(textName):
+    content = openTxt(textName)
     content = content[1:]
     dataArray = []
     i = 0
@@ -124,7 +124,6 @@ def fitenss(currentPlacement,dataArray):
     z = 0
     # initial value of the distance
     distance = 0
-
     # we use the range function which is exclusive for the last element
     ##################
     # the arrays go from 0 and not 1
@@ -165,23 +164,24 @@ def update(object,path,tabooDict,tp,bestSoFar,bestPath):
 
     return (tabooDict,bestSoFar,object.array,bestPath)
 
-def taboo():
-    tp = 8
-    dataSet = GetData()
+def taboo(tabuPeriod,textName,tabooL):
+    tp = tabuPeriod
+    dataSet = GetData(textName)
     intialSolution = []
     for i in range(0,len(dataSet)):
         intialSolution.append(i+1)
 
     random.shuffle(intialSolution)
+
     count = 0
     bestSolution = fitenss(intialSolution,dataSet)
     previousSolution = bestSolution
     bestPath = copy.copy(intialSolution)
-    tabooLists = Taboo(tb1=[],tb2=[],tb3=[],dtb1={},dtb2={},dtb3={},memory1=3)
+    tabooLists = tabooL  #TabooList(tb1=[],dtb1={},dtb2={},dtb3={}) #,tb2=[],tb3=[]
     currentPath = copy.copy(intialSolution)
 
 
-    for i in range(0,450):
+    for i in range(0,100):
         solutionArrays = []
         for i in range(0,len(currentPath)-1):
             for j in range(i+1,len(currentPath)):
@@ -203,6 +203,7 @@ def taboo():
                 tabooLists = x[0]
                 currentPath = x[2]
                 bestPath = x[3]
+
                 break
 
             elif tabooLists.checker(path=path,moved=i.moved,index=i.index) and i.value < bestSolution:
@@ -213,10 +214,9 @@ def taboo():
                 bestPath = x[3]
                 break
 
-
         if previousSolution == bestSolution:
             count += 1
-        if previousSolution == bestSolution and count == 25:
+        if previousSolution == bestSolution and count == 30:
             random.shuffle(currentPath)
             count = 0
 
@@ -224,8 +224,19 @@ def taboo():
             count = 0
             previousSolution = bestSolution
 
+        print(bestPath)
+        print(bestSolution)
+
+
     return (bestPath,bestSolution)
 
-print(taboo())
+
+x = taboo(tabuPeriod=8,textName="test.txt",tabooL=TabooList(tb1=[],tb2=[],tb3=[],dtb1={},dtb2={},dtb3={}))
+# count = 0
+# for i in range(0,30):
+#     x = taboo(tabuPeriod=8,textName="test.txt",tabooL=TabooList(tb1=[],tb2=[],tb3=[],dtb1={},dtb2={},dtb3={}))
+#     print(x)
+# print(count)
+
 
 
