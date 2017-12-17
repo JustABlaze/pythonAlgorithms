@@ -224,19 +224,11 @@ def taboo(tabuPeriod,textName,tabooL):
             count = 0
             previousSolution = bestSolution
 
-        print(bestPath)
-        print(bestSolution)
-
 
     return (bestPath,bestSolution)
 
 
 x = taboo(tabuPeriod=8,textName="test.txt",tabooL=TabooList(tb1=[],tb2=[],tb3=[],dtb1={},dtb2={},dtb3={}))
-# count = 0
-# for i in range(0,30):
-#     x = taboo(tabuPeriod=8,textName="test.txt",tabooL=TabooList(tb1=[],tb2=[],tb3=[],dtb1={},dtb2={},dtb3={}))
-#     print(x)
-# print(count)
-
+print(x)
 
 
